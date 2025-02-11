@@ -6,7 +6,7 @@
 
 ## Overview
 
-While staying in Itoshima, Japan, I was deeply inspired by the rural landscapes, the farm life, and the rhythmic sounds of the countryside. One of the most memorable experiences was hearing the music played in the farms at 7 AM, 12 PM, and 5 PM. These sounds marked the rhythm of daily life—signaling the start of work, lunch breaks, and the return home to family. This auditory tradition became an integral part of my experience, shaping the way I perceived time and work within this serene setting.
+While staying in Itoshima, Japan, I was deeply inspired by the rural landscapes, the farm life, and the rhythmic sounds of the countryside. The first time, it was a pleasant surprise to hear the music played in the farms at 7 AM, 12 PM, and 5 PM. Over time, these sounds became a comforting presence, marking the rhythm of daily life—signaling the start of work, lunch breaks, and the return home to family. This auditory tradition became an integral part of my experience, shaping the way I perceived time and work within this serene setting
 
 ## Purpose of This Project
 
