@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Itoshima sounds</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: black;
+            overflow: hidden;
+            position: relative;
+        }
+        #imagen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            z-index: -1;
+        }
+        .overlay {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            color: white;
+        }
+        #reloj {
+            font-size: 3em;
+            font-weight: bold;
+        }
+        #audioButton {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 1.2em;
+            cursor: pointer;
+            background-color: rgba(255, 0, 0, 0.1);
+            border: none;
+            color: white;
+            border-radius: 5px;
+        }
+        #audioButton.on {
+            background-color: rgba(0, 255, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <img id="imagen" src="images/imagen1.jpg" alt="Imagen Random">
+    <div class="overlay">
+        <div id="reloj"></div>
+        <button id="audioButton">Itoshima Sounds (OFF)</button>
+    </div>
+
+    <script>
+        // Configurar horarios en formato HH:MM:SS (24 horas)
+        const schedule = [
+            { time: "11:50:00", audio: "sounds/1_Studio-Kura-7.mp3" },
+            { time: "14:30:00", audio: "sounds/2_Studio-Kura-12-jingle-Edelweiss.mp3" },
+            { time: "18:45:00", audio: "sounds/3_Studio-Kura-17-jingle-Yuuyake-Koyake.mp3" }
+        ];
+
+        let audioEnabled = false;
+        const audioButton = document.getElementById('audioButton');
+
+        audioButton.addEventListener('click', () => {
+            audioEnabled = !audioEnabled;
+            audioButton.classList.toggle('on', audioEnabled);
+            audioButton.textContent = `Itoshima Sounds (${audioEnabled ? 'ON' : 'OFF'})`;
+        });
+
+        function checkTime() {
+            console.log('Verificando la hora...');
+            const now = new Date();
+            const currentTime = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0') + ":" + now.getSeconds().toString().padStart(2, '0');
+            
+            schedule.forEach(event => {
+                if (event.time === currentTime && audioEnabled) {
+                    playAudio(event.audio);
+                }
+            });
+        }
+
+        function playAudio(audioFile) {
+            const audio = new Audio(audioFile);
+            audio.play().catch(error => console.log("Error al reproducir el audio: ", error));
+        }
+
+        function actualizarReloj() {
+            const ahora = new Date();
+            let horas = ahora.getHours();
+            const minutos = ahora.getMinutes();
+            const segundos = ahora.getSeconds();
+            const ampm = horas >= 12 ? 'PM' : 'AM';
+
+            horas = horas % 12;
+            horas = horas ? horas : 12;
+
+            const strHoras = horas < 10 ? '0' + horas : horas;
+            const strMinutos = minutos < 10 ? '0' + minutos : minutos;
+            const strSegundos = segundos < 10 ? '0' + segundos : segundos;
+
+            const horaActual = `${strHoras}:${strMinutos}:${strSegundos} ${ampm}`;
+            document.getElementById('reloj').textContent = horaActual;
+        }
+
+        function cambiarImagen() {
+            const imagenes = ["images/001.jpg"];
+            const imagenActual = document.getElementById("imagen");
+            const nuevaImagen = imagenes[Math.floor(Math.random() * imagenes.length)];
+            imagenActual.src = nuevaImagen;
+        }
+
+        setInterval(actualizarReloj, 1000);
+        actualizarReloj();
+        setInterval(checkTime, 1000);
+        checkTime();
+        setInterval(cambiarImagen, 900000);
+        cambiarImagen();
+    </script>
+</body>
+</html>
