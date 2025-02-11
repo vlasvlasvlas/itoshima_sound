@@ -67,9 +67,9 @@
     <script>
         // Configurar horarios en formato HH:MM:SS (24 horas)
         const schedule = [
-            { time: "11:50:00", audio: "sounds/1_Studio-Kura-7.mp3" },
-            { time: "14:30:00", audio: "sounds/2_Studio-Kura-12-jingle-Edelweiss.mp3" },
-            { time: "18:45:00", audio: "sounds/3_Studio-Kura-17-jingle-Yuuyake-Koyake.mp3" }
+            { time: "07:00:00", audio: "sounds/1_Studio-Kura-7.mp3" },
+            { time: "12:00:00", audio: "sounds/2_Studio-Kura-12-jingle-Edelweiss.mp3" },
+            { time: "17:00:00", audio: "sounds/3_Studio-Kura-17-jingle-Yuuyake-Koyake.mp3" }
         ];
 
         let audioEnabled = false;
@@ -82,7 +82,7 @@
         });
 
         function checkTime() {
-            console.log('Verificando la hora...');
+            //console.log('Verificando la hora...');
             const now = new Date();
             const currentTime = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0') + ":" + now.getSeconds().toString().padStart(2, '0');
             
