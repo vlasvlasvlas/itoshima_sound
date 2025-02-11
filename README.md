@@ -32,7 +32,11 @@ Download and extract this zip file that contains all the project:
 
 Or you can download this repo.
 
-Then, simply open the HTML file in your browser and let it run in the background. At 7 AM, 12 PM, and 5 PM, the corresponding music will play, just like it does in the fields of Itoshima.
+Then, simply open the HTML file in your browser, and turon ON the Itoshima sounds button.
+
+Then, let it run in the background. 
+
+At 7 AM, 12 PM, and 5 PM, the corresponding music will play, just like it does in the fields of Itoshima.
 
 This is a small homage to the beauty of rural Japan and the gentle rhythms that shape life on the farms. I hope it brings a sense of calm and connection to those who experience it.
 
