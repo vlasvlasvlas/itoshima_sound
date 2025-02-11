@@ -12,6 +12,16 @@ While staying in Itoshima, Japan, I was deeply inspired by the rural landscapes,
 
 This simple HTML page is a tribute to that experience. It is designed to automatically play those farm sounds at the designated hours, recreating the immersive atmosphere of working and living in Itoshima. The idea is to let this play in the background in a browser tab, evoking the nostalgia of those moments while blending seamlessly into everyday life.
 
+## Manual Playback
+
+In addition to automatic playback, you can manually trigger the sounds by pressing:
+
+- **1** to play the **morning** sound (7 AM)
+- **2** to play the **noon** sound (12 PM)
+- **3** to play the **evening** sound (5 PM)
+
+These sounds will only play if the system is switched **ON**. The playback ensures that only one sound can play at a time, preventing overlap.
+
 ## Future Improvements
 
 This project has room to grow, with possible enhancements such as:
