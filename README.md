@@ -36,7 +36,12 @@ Then, simply open the HTML file in your browser and let it run in the background
 
 This is a small homage to the beauty of rural Japan and the gentle rhythms that shape life on the farms. I hope it brings a sense of calm and connection to those who experience it.
 
-# References
+
+## Thanks
+
+Music soundtrack recordings by Oda at Studio Kura, Jan 2025.
+
+## References
 
 https://studiokura.info/en/
 
