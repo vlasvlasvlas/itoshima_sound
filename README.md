@@ -1,6 +1,8 @@
 # Itoshima Sounds
 
-![](images/001.jpg)
+<img src="images/001.jpg" style="zoom:50%;" />
+
+
 
 ## Overview
 
@@ -24,7 +26,20 @@ Implementing random animated sequences that overlay the images, enhancing the vi
 
 ## How to Use
 
-Simply open the HTML file in your browser and let it run in the background. At 7 AM, 12 PM, and 5 PM, the corresponding music will play, just like it does in the fields of Itoshima.
+Download this zip file that contains all the project:  
+
+<a id="raw-url" href="itoshima_sound.zip">ITOSHIMA SOUNDS ZIP FILE</a>
+
+Or you can download this repo.
+
+Then, simply open the HTML file in your browser and let it run in the background. At 7 AM, 12 PM, and 5 PM, the corresponding music will play, just like it does in the fields of Itoshima.
 
 This is a small homage to the beauty of rural Japan and the gentle rhythms that shape life on the farms. I hope it brings a sense of calm and connection to those who experience it.
 
+# References
+
+https://studiokura.info/en/
+
+https://en.wikipedia.org/wiki/Itoshima,_Fukuoka
+
+<img src="images/002.jpg" alt="alt text" style="zoom:50%;" />
