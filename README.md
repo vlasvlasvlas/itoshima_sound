@@ -26,7 +26,7 @@ Implementing random animated sequences that overlay the images, enhancing the vi
 
 ## How to Use
 
-Download this zip file that contains all the project:  
+Download and extract this zip file that contains all the project:  
 
 <a id="raw-url" href="https://github.com/vlasvlasvlas/itoshima_sound/raw/refs/heads/main/itoshima_sound.zip">ITOSHIMA SOUNDS ZIP FILE</a>
 
