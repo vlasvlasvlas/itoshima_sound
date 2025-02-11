@@ -1,6 +1,6 @@
 # Itoshima Sounds
 
-<img src="images/001.jpg" style="zoom:50%;" />
+<img src="images/headerrepo.jpg" style="zoom:50%;" />
 
 
 
