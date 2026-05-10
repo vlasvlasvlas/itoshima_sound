@@ -7,45 +7,23 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Roboto', sans-serif; }
-    body {
-      display: flex; align-items: center; justify-content: center; height: 100vh;
-      background-color: black; overflow: hidden; position: relative;
-    }
-    #imagen {
-      position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
-      object-fit: cover; z-index: -1;
-    }
-    .overlay {
-      position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
-      text-align: center; color: white; z-index: 3;
-    }
-    #reloj { font-size: 3em; font-weight: bold; }
-    #audioButton {
-      margin-top: 10px; padding: 10px 20px; font-size: 1.2em; cursor: pointer;
-      background-color: rgba(255, 0, 0, 0.1); border: none; color: white; border-radius: 5px;
-    }
-    #audioButton.on { background-color: rgba(0, 255, 0, 0.1); }
+    body { display: flex; align-items: center; justify-content: center; height: 100vh; background: black; overflow: hidden; position: relative; }
+    #imagen { position: absolute; inset: 0; width: 100vw; height: 100vh; object-fit: cover; z-index: -1; }
+    .overlay { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); text-align: center; color: white; z-index: 3; }
+    #reloj { font-size: 3em; font-weight: 700; }
+    #audioButton { margin-top: 10px; padding: 10px 20px; font-size: 1.1em; cursor: pointer; background: rgba(255,0,0,0.12); border: none; color: white; border-radius: 6px; }
+    #audioButton.on { background: rgba(0,255,0,0.18); }
 
-    #sidebarToggle {
-      position: fixed; right: 12px; top: 12px; z-index: 5;
-      border: 1px solid rgba(255,255,255,0.25); background: rgba(0,0,0,0.4);
-      color: white; border-radius: 6px; padding: 8px 10px; cursor: pointer;
-    }
-    #sidebar {
-      position: fixed; right: 0; top: 0; width: min(360px, 86vw); height: 100vh;
-      color: white; background: rgba(0, 0, 0, 0.65); backdrop-filter: blur(6px);
-      border-left: 1px solid rgba(255,255,255,0.15); transform: translateX(100%);
-      transition: transform 200ms ease; z-index: 4; padding: 18px 16px; overflow-y: auto;
-    }
+    #sidebarToggle { position: fixed; right: 12px; top: 12px; z-index: 5; border: 1px solid rgba(255,255,255,0.25); background: rgba(0,0,0,0.4); color: white; border-radius: 6px; padding: 8px 10px; cursor: pointer; }
+    #sidebar { position: fixed; right: 0; top: 0; width: min(390px, 90vw); height: 100vh; color: white; background: rgba(0,0,0,0.67); backdrop-filter: blur(7px); border-left: 1px solid rgba(255,255,255,0.15); transform: translateX(100%); transition: transform 200ms ease; z-index: 4; padding: 18px 16px 30px; overflow-y: auto; }
     #sidebar.open { transform: translateX(0); }
     .panelTitle { font-size: 1rem; font-weight: 700; margin-bottom: 10px; }
-    .metric {
-      display: flex; justify-content: space-between; margin: 7px 0; padding-bottom: 7px;
-      border-bottom: 1px solid rgba(255,255,255,0.12); font-size: 0.95rem;
-    }
-    .controlRow { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
-    .controlRow label { font-size: 0.9rem; }
-    .hint { margin-top: 12px; font-size: 0.82rem; opacity: 0.8; line-height: 1.4; }
+    .metric { display: flex; justify-content: space-between; margin: 7px 0; padding-bottom: 7px; border-bottom: 1px solid rgba(255,255,255,0.12); font-size: 0.92rem; }
+    .controlRow { margin-top: 14px; display: flex; flex-direction: column; gap: 9px; }
+    .controlRow label { font-size: 0.87rem; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .controlRow select, .controlRow input[type="range"] { width: 170px; }
+    .hint { margin-top: 12px; font-size: 0.81rem; opacity: 0.83; line-height: 1.4; }
+    .section { margin-top: 15px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.15); }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/yaml@2.8.1/dist/index.min.js"></script>
 </head>
@@ -58,33 +36,48 @@
 
   <button id="sidebarToggle" aria-label="Toggle sidebar">Sound Lab</button>
   <aside id="sidebar" aria-hidden="true">
-    <div class="panelTitle">Itoshima Live Climate</div>
+    <div class="panelTitle">Itoshima Live Climate + Koto Lab</div>
     <div class="metric"><span>Temp</span><strong id="metricTemp">-</strong></div>
     <div class="metric"><span>Wind</span><strong id="metricWind">-</strong></div>
     <div class="metric"><span>Humidity</span><strong id="metricHumidity">-</strong></div>
     <div class="metric"><span>Precip</span><strong id="metricPrecip">-</strong></div>
-    <div class="metric"><span>Weather Code</span><strong id="metricCode">-</strong></div>
-    <div class="metric"><span>Sonic Scene</span><strong id="metricScene">-</strong></div>
+    <div class="metric"><span>Scene</span><strong id="metricScene">-</strong></div>
     <div class="metric"><span>Scale</span><strong id="metricScale">-</strong></div>
 
     <div class="controlRow">
-      <label><input id="climateEnabled" type="checkbox" checked /> Climate modulation enabled</label>
-      <label for="intensityMode">Intensity</label>
-      <select id="intensityMode">
-        <option value="calm">Calm</option>
-        <option value="present" selected>Present</option>
-        <option value="immersive">Immersive</option>
-      </select>
+      <label><span>Climate Modulation</span><input id="climateEnabled" type="checkbox" checked /></label>
+      <label><span>Intensity</span>
+        <select id="intensityMode"><option value="calm">Calm</option><option value="present" selected>Present</option><option value="immersive">Immersive</option></select>
+      </label>
+      <label><span>Instrument</span>
+        <select id="instrumentMode">
+          <option value="koto">Koto</option>
+          <option value="shamisen">Shamisen</option>
+          <option value="biwa">Biwa</option>
+          <option value="shakuhachi">Shakuhachi</option>
+          <option value="taiko">Taiko Bell</option>
+        </select>
+      </label>
     </div>
 
-    <div class="hint">
-      Koto engine maps weather data to scale, density, reverb and delay. Sidebar is optional and hidden by default.
+    <div class="section controlRow">
+      <label><span>String Volume</span><input id="stringVolume" type="range" min="0" max="1" step="0.01" value="0.34" /></label>
+      <label><span>Drone ON</span><input id="droneEnabled" type="checkbox" checked /></label>
+      <label><span>Drone Volume</span><input id="droneVolume" type="range" min="0" max="1" step="0.01" value="0.16" /></label>
     </div>
+
+    <div class="section controlRow">
+      <label><span>Reverb Time (s)</span><input id="reverbTime" type="range" min="0.8" max="6" step="0.1" value="2.8" /></label>
+      <label><span>Delay Time (ms)</span><input id="delayTime" type="range" min="60" max="520" step="1" value="210" /></label>
+      <label><span>Delay Feedback</span><input id="delayFeedback" type="range" min="0" max="0.8" step="0.01" value="0.25" /></label>
+      <label><span>Dry/Wet</span><input id="dryWet" type="range" min="0" max="1" step="0.01" value="0.35" /></label>
+    </div>
+
+    <div class="hint">Sonido mejorado con 5 timbres japoneses, capas de cuerdas + drone y FX editables en vivo.</div>
   </aside>
 
   <script>
     const DEFAULT_CONFIG_PATHS = ["config/itoshima.config.yaml", "config/itoshima.config.json"];
-
     const DEFAULT_CONFIG = {
       title: "Itoshima sounds",
       timeFormat: "12h",
@@ -92,61 +85,78 @@
       audioEnabledByDefault: false,
       audio: { allowOverlap: false, schedule: [], manualKeys: {} },
       images: { files: ["img/001.jpg"] },
-      climate: {
-        enabled: true, latitude: 33.556, longitude: 130.195, timezone: "Asia/Tokyo", refreshMs: 600000,
-        sonicIntensity: "present"
-      },
+      climate: { enabled: true, latitude: 33.556, longitude: 130.195, timezone: "Asia/Tokyo", refreshMs: 600000, sonicIntensity: "present" },
       kotoEngine: {
-        enabled: true, baseRootHz: 293.66, phraseMinMs: 10000, phraseMaxMs: 20000, maxVoices: 3,
+        enabled: true,
+        baseRootHz: 293.66,
+        phraseMinMs: 4000,
+        phraseMaxMs: 9000,
+        maxVoices: 4,
+        instrument: "koto",
+        stringVolume: 0.34,
+        droneEnabled: true,
+        droneVolume: 0.16,
+        fx: { reverbTime: 2.8, delayTimeMs: 210, delayFeedback: 0.25, dryWet: 0.35 },
         scales: { morning: [0,2,3,7,8], noon: [0,1,5,7,10], evening: [0,2,5,7,9] }
       }
     };
 
+    const INSTRUMENTS = {
+      koto: { osc: "triangle", attack: 0.005, decay: 2.1, q: 3.2, detune: 4, bright: 2.1 },
+      shamisen: { osc: "sawtooth", attack: 0.003, decay: 1.6, q: 4.2, detune: 7, bright: 2.5 },
+      biwa: { osc: "square", attack: 0.004, decay: 1.9, q: 2.8, detune: 5, bright: 1.7 },
+      shakuhachi: { osc: "sine", attack: 0.03, decay: 2.6, q: 1.4, detune: 2, bright: 1.1 },
+      taiko: { osc: "triangle", attack: 0.002, decay: 1.1, q: 1.1, detune: 0, bright: 0.7 }
+    };
+
+    const SCALE_NAMES = { morning: "Hirajoshi", noon: "Insen", evening: "Yo" };
+    const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+    const rand = (min, max) => min + Math.random() * (max - min);
+
     const state = {
+      config: { ...DEFAULT_CONFIG },
       audioEnabled: false,
       currentAudio: null,
-      config: { ...DEFAULT_CONFIG },
       displayedSecond: null,
       climate: null,
       climateEnabled: true,
       sidebarOpen: false,
       sonicIntensity: "present",
-      kotoTimer: null,
+      instrument: "koto",
       audioCtx: null,
-      kotoBus: null,
-      kotoDelay: null,
-      kotoReverb: null,
-      kotoWetGain: null
+      phraseTimer: null,
+      droneOscA: null,
+      droneOscB: null,
+      droneGain: null,
+      stringBus: null,
+      dryGain: null,
+      wetGain: null,
+      masterGain: null,
+      delayNode: null,
+      delayFeedbackGain: null,
+      convolver: null
     };
 
-    const audioButton = document.getElementById("audioButton");
-    const imageEl = document.getElementById("imagen");
-    const sidebar = document.getElementById("sidebar");
-    const sidebarToggle = document.getElementById("sidebarToggle");
-    const climateEnabledCheckbox = document.getElementById("climateEnabled");
-    const intensitySelect = document.getElementById("intensityMode");
-
-    const metricTemp = document.getElementById("metricTemp");
-    const metricWind = document.getElementById("metricWind");
-    const metricHumidity = document.getElementById("metricHumidity");
-    const metricPrecip = document.getElementById("metricPrecip");
-    const metricCode = document.getElementById("metricCode");
-    const metricScene = document.getElementById("metricScene");
-    const metricScale = document.getElementById("metricScale");
-
-    const SCALE_NAMES = { morning: "Hirajoshi", noon: "Insen", evening: "Yo" };
-
-    const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
-    const rand = (min, max) => min + Math.random() * (max - min);
+    const el = {
+      audioButton: document.getElementById("audioButton"), image: document.getElementById("imagen"),
+      sidebar: document.getElementById("sidebar"), sidebarToggle: document.getElementById("sidebarToggle"),
+      climateEnabled: document.getElementById("climateEnabled"), intensity: document.getElementById("intensityMode"),
+      instrument: document.getElementById("instrumentMode"), stringVolume: document.getElementById("stringVolume"),
+      droneEnabled: document.getElementById("droneEnabled"), droneVolume: document.getElementById("droneVolume"),
+      reverbTime: document.getElementById("reverbTime"), delayTime: document.getElementById("delayTime"),
+      delayFeedback: document.getElementById("delayFeedback"), dryWet: document.getElementById("dryWet"),
+      metricTemp: document.getElementById("metricTemp"), metricWind: document.getElementById("metricWind"),
+      metricHumidity: document.getElementById("metricHumidity"), metricPrecip: document.getElementById("metricPrecip"),
+      metricScene: document.getElementById("metricScene"), metricScale: document.getElementById("metricScale")
+    };
 
     function mergeConfig(base, incoming) {
       return {
-        ...base,
-        ...incoming,
+        ...base, ...incoming,
         audio: { ...base.audio, ...(incoming.audio || {}) },
         images: { ...base.images, ...(incoming.images || {}) },
         climate: { ...base.climate, ...(incoming.climate || {}) },
-        kotoEngine: { ...base.kotoEngine, ...(incoming.kotoEngine || {}) }
+        kotoEngine: { ...base.kotoEngine, ...(incoming.kotoEngine || {}), fx: { ...base.kotoEngine.fx, ...((incoming.kotoEngine || {}).fx || {}) } }
       };
     }
 
@@ -155,10 +165,7 @@
       if (!response.ok) throw new Error(`Could not load ${path}`);
       const text = await response.text();
       if (path.endsWith(".json")) return JSON.parse(text);
-      if (path.endsWith(".yaml") || path.endsWith(".yml")) {
-        if (!window.YAML || typeof window.YAML.parse !== "function") throw new Error("YAML parser unavailable");
-        return window.YAML.parse(text);
-      }
+      if (path.endsWith(".yaml") || path.endsWith(".yml")) return window.YAML.parse(text);
       return JSON.parse(text);
     }
 
@@ -166,29 +173,15 @@
       const queryPath = new URLSearchParams(window.location.search).get("config");
       const paths = queryPath ? [queryPath] : DEFAULT_CONFIG_PATHS;
       for (const p of paths) {
-        try { return mergeConfig(DEFAULT_CONFIG, await tryLoadConfig(p)); } catch (err) { console.warn(err.message); }
+        try { return mergeConfig(DEFAULT_CONFIG, await tryLoadConfig(p)); } catch (e) { console.warn(e.message); }
       }
       return DEFAULT_CONFIG;
     }
 
-    function setAudioButtonState() {
-      audioButton.classList.toggle("on", state.audioEnabled);
-      audioButton.textContent = `Itoshima Sounds (${state.audioEnabled ? "ON" : "OFF"})`;
-    }
-
     function getIntensityWeight() {
-      if (state.sonicIntensity === "calm") return 0.7;
-      if (state.sonicIntensity === "immersive") return 1.4;
+      if (state.sonicIntensity === "calm") return 0.72;
+      if (state.sonicIntensity === "immersive") return 1.45;
       return 1.0;
-    }
-
-    function getSceneLabel(c) {
-      if (!c) return "offline";
-      if ((c.precipitation || 0) > 0.1) return "rain drift";
-      if ((c.wind_speed_10m || 0) > 18) return "wind field";
-      if ((c.temperature_2m || 0) > 29) return "warm noon haze";
-      if ((c.temperature_2m || 0) < 10) return "cold clear air";
-      return "rural pulse";
     }
 
     function getScaleKeyByTime() {
@@ -203,6 +196,20 @@
       return { key, notes: state.config.kotoEngine.scales[key] || [0,2,3,7,8] };
     }
 
+    function getSceneLabel(c) {
+      if (!c) return "offline";
+      if ((c.precipitation || 0) > 0.1) return "rain drift";
+      if ((c.wind_speed_10m || 0) > 18) return "wind field";
+      if ((c.temperature_2m || 0) > 29) return "warm haze";
+      if ((c.temperature_2m || 0) < 10) return "cold air";
+      return "rural pulse";
+    }
+
+    function setAudioButtonState() {
+      el.audioButton.classList.toggle("on", state.audioEnabled);
+      el.audioButton.textContent = `Itoshima Sounds (${state.audioEnabled ? "ON" : "OFF"})`;
+    }
+
     function stopCurrentAudio(force = false) {
       if (!state.currentAudio) return;
       if (!force && state.config.audio.allowOverlap) return;
@@ -212,21 +219,17 @@
     }
 
     function applyClimateAudioParams(audio) {
-      if (!state.climateEnabled || !state.climate) {
-        audio.volume = 0.9; audio.playbackRate = 1.0; return;
-      }
+      if (!state.climateEnabled || !state.climate) { audio.volume = 0.95; audio.playbackRate = 1.0; return; }
       const c = state.climate;
-      const w = getIntensityWeight();
       const temp = Number(c.temperature_2m || 20);
       const wind = Number(c.wind_speed_10m || 4);
       const hum = Number(c.relative_humidity_2m || 55);
       const rain = Number(c.precipitation || 0);
-
-      const rate = clamp((0.9 + ((temp - 10) / 40) * 0.2) * (1 + clamp(wind / 100, 0, 0.08)), 0.85, 1.2);
-      const vol = clamp((0.88 - ((hum - 50) / 100) * 0.08) - (0.06 * clamp(rain, 0, 4)), 0.55, 0.95);
-
-      audio.playbackRate = clamp(1 + ((rate - 1) * w), 0.8, 1.25);
-      audio.volume = clamp(vol * (0.9 + (w - 1) * 0.15), 0.5, 1.0);
+      const w = getIntensityWeight();
+      const rate = clamp((0.93 + ((temp - 10) / 40) * 0.14) * (1 + clamp(wind / 100, 0, 0.06)), 0.86, 1.16);
+      const vol = clamp((0.88 - ((hum - 50) / 100) * 0.07) - (0.05 * clamp(rain, 0, 4)), 0.6, 0.98);
+      audio.playbackRate = clamp(1 + ((rate - 1) * w), 0.83, 1.2);
+      audio.volume = clamp(vol, 0.55, 1);
     }
 
     async function playAudio(file) {
@@ -246,12 +249,12 @@
 
     function updateClock() {
       const now = new Date();
-      const el = document.getElementById("reloj");
+      const elClock = document.getElementById("reloj");
       if (state.config.timeFormat === "24h") {
-        el.textContent = `${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}:${String(now.getSeconds()).padStart(2,"0")}`;
+        elClock.textContent = `${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}:${String(now.getSeconds()).padStart(2,"0")}`;
       } else {
         let h = now.getHours(); const ampm = h >= 12 ? "PM" : "AM"; h = h % 12 || 12;
-        el.textContent = `${String(h).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}:${String(now.getSeconds()).padStart(2,"0")} ${ampm}`;
+        elClock.textContent = `${String(h).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}:${String(now.getSeconds()).padStart(2,"0")} ${ampm}`;
       }
     }
 
@@ -260,181 +263,234 @@
       const t = getCurrentTime24h();
       if (t === state.displayedSecond) return;
       state.displayedSecond = t;
-      const match = state.config.audio.schedule.find((e) => e.time === t);
+      const match = state.config.audio.schedule.find((x) => x.time === t);
       if (match) playAudio(match.file);
     }
 
     function rotateImage() {
       const files = state.config.images.files || [];
       if (!files.length) return;
-      imageEl.src = files[Math.floor(Math.random() * files.length)];
+      el.image.src = files[Math.floor(Math.random() * files.length)];
     }
 
-    function initKotoEngineIfNeeded() {
-      if (!state.config.kotoEngine.enabled || state.audioCtx) return;
-      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-      if (!AudioContextClass) return;
+    function midiToHz(midi) { return 440 * Math.pow(2, (midi - 69) / 12); }
 
-      state.audioCtx = new AudioContextClass();
-      const ctx = state.audioCtx;
-
-      const bus = ctx.createGain();
-      bus.gain.value = 0.22;
-
-      const dry = ctx.createGain(); dry.gain.value = 0.75;
-      const wet = ctx.createGain(); wet.gain.value = 0.25;
-      const wetGain = ctx.createGain(); wetGain.gain.value = 0.25;
-
-      const delay = ctx.createDelay(1.0);
-      const fb = ctx.createGain();
-      delay.delayTime.value = 0.2;
-      fb.gain.value = 0.18;
-      delay.connect(fb);
-      fb.connect(delay);
-
-      const convolver = ctx.createConvolver();
-      convolver.buffer = buildImpulseResponse(ctx, 2.4, 2.2);
-
-      bus.connect(dry); bus.connect(wet);
-      wet.connect(delay);
-      wet.connect(convolver);
-
-      const master = ctx.createGain();
-      master.gain.value = 0.4;
-      dry.connect(master);
-      delay.connect(wetGain);
-      convolver.connect(wetGain);
-      wetGain.connect(master);
-      master.connect(ctx.destination);
-
-      state.kotoBus = bus;
-      state.kotoDelay = delay;
-      state.kotoReverb = convolver;
-      state.kotoWetGain = wetGain;
-    }
-
-    function buildImpulseResponse(ctx, seconds, decay) {
-      const rate = ctx.sampleRate;
-      const length = rate * seconds;
-      const impulse = ctx.createBuffer(2, length, rate);
+    function buildImpulse(ctx, seconds = 2.8, decay = 2.2) {
+      const len = Math.floor(ctx.sampleRate * seconds);
+      const impulse = ctx.createBuffer(2, len, ctx.sampleRate);
       for (let ch = 0; ch < 2; ch++) {
         const data = impulse.getChannelData(ch);
-        for (let i = 0; i < length; i++) {
-          data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, decay);
-        }
+        for (let i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay);
       }
       return impulse;
     }
 
-    function midiToHz(midi) {
-      return 440 * Math.pow(2, (midi - 69) / 12);
+    function initAudioEngine() {
+      if (state.audioCtx) return;
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      const ctx = new AC();
+      state.audioCtx = ctx;
+
+      const stringBus = ctx.createGain();
+      const dryGain = ctx.createGain();
+      const wetGain = ctx.createGain();
+      const master = ctx.createGain();
+      const delay = ctx.createDelay(1.2);
+      const fb = ctx.createGain();
+      const convolver = ctx.createConvolver();
+
+      stringBus.connect(dryGain);
+      stringBus.connect(delay);
+      stringBus.connect(convolver);
+
+      delay.connect(fb);
+      fb.connect(delay);
+      delay.connect(wetGain);
+      convolver.connect(wetGain);
+
+      dryGain.connect(master);
+      wetGain.connect(master);
+      master.connect(ctx.destination);
+
+      state.stringBus = stringBus;
+      state.dryGain = dryGain;
+      state.wetGain = wetGain;
+      state.masterGain = master;
+      state.delayNode = delay;
+      state.delayFeedbackGain = fb;
+      state.convolver = convolver;
+
+      rebuildReverb(Number(el.reverbTime.value));
+      applyFxControls();
+      startDroneIfNeeded();
+      triggerStringNote(0); // immediate audible confirmation
     }
 
-    function getClimateDrivenNote() {
+    function rebuildReverb(seconds) {
+      if (!state.audioCtx || !state.convolver) return;
+      state.convolver.buffer = buildImpulse(state.audioCtx, seconds, 2.2);
+    }
+
+    function applyFxControls() {
+      if (!state.audioCtx) return;
+      const dryWet = Number(el.dryWet.value);
+      const delayMs = Number(el.delayTime.value);
+      const fb = Number(el.delayFeedback.value);
+      const stringVol = Number(el.stringVolume.value);
+      const droneVol = Number(el.droneVolume.value);
+
+      state.dryGain.gain.setTargetAtTime(1 - dryWet, state.audioCtx.currentTime, 0.08);
+      state.wetGain.gain.setTargetAtTime(dryWet, state.audioCtx.currentTime, 0.08);
+      state.delayNode.delayTime.setTargetAtTime(delayMs / 1000, state.audioCtx.currentTime, 0.08);
+      state.delayFeedbackGain.gain.setTargetAtTime(fb, state.audioCtx.currentTime, 0.08);
+      state.stringBus.gain.setTargetAtTime(stringVol, state.audioCtx.currentTime, 0.08);
+      if (state.droneGain) state.droneGain.gain.setTargetAtTime(el.droneEnabled.checked ? droneVol : 0, state.audioCtx.currentTime, 0.2);
+
+      const wetFromClimate = state.climateEnabled && state.climate
+        ? clamp(0.2 + ((Number(state.climate.relative_humidity_2m || 55) - 20) / 100) * 0.32, 0.15, 0.55)
+        : dryWet;
+      state.wetGain.gain.setTargetAtTime(clamp((dryWet * 0.65) + (wetFromClimate * 0.35), 0.05, 0.85), state.audioCtx.currentTime, 0.2);
+    }
+
+    function startDroneIfNeeded() {
+      if (!state.audioCtx || state.droneOscA) return;
+      const ctx = state.audioCtx;
+      const g = ctx.createGain();
+      g.gain.value = 0;
+      const a = ctx.createOscillator();
+      const b = ctx.createOscillator();
+      const filter = ctx.createBiquadFilter();
+      filter.type = "lowpass";
+      filter.frequency.value = 480;
+      a.type = "sine";
+      b.type = "triangle";
+      a.frequency.value = state.config.kotoEngine.baseRootHz / 2;
+      b.frequency.value = state.config.kotoEngine.baseRootHz / 2 * 1.005;
+      a.connect(filter); b.connect(filter); filter.connect(g); g.connect(state.masterGain);
+      a.start(); b.start();
+      state.droneOscA = a; state.droneOscB = b; state.droneGain = g;
+      applyFxControls();
+    }
+
+    function triggerStringNote(offset = 0) {
+      if (!state.audioCtx || !state.stringBus) return;
+      const ctx = state.audioCtx;
+      const now = ctx.currentTime + offset;
+      const instrument = INSTRUMENTS[state.instrument] || INSTRUMENTS.koto;
       const baseHz = Number(state.config.kotoEngine.baseRootHz || 293.66);
       const baseMidi = Math.round(69 + 12 * Math.log2(baseHz / 440));
-      const c = state.climate || {};
-
-      const temp = Number(c.temperature_2m || 20);
-      const registerShift = temp < 10 ? -5 : temp > 28 ? 5 : 0;
+      const climate = state.climate || {};
+      const temp = Number(climate.temperature_2m || 20);
+      const registerShift = temp < 10 ? -4 : temp > 29 ? 5 : 0;
 
       const { key, notes } = getScale();
-      const octaveJumps = [-12, 0, 12];
+      el.metricScale.textContent = SCALE_NAMES[key] || key;
+
       const note = notes[Math.floor(Math.random() * notes.length)];
-      const octave = octaveJumps[Math.floor(Math.random() * octaveJumps.length)];
-      const midi = clamp(baseMidi + registerShift + note + octave, 45, 81);
+      const octaveShift = [-12, 0, 12][Math.floor(Math.random() * 3)];
+      const midi = clamp(baseMidi + registerShift + note + octaveShift, 43, 83);
+      const freq = midiToHz(midi);
 
-      return { hz: midiToHz(midi), scaleName: SCALE_NAMES[key] || key };
-    }
-
-    function updateKotoFxFromClimate() {
-      if (!state.audioCtx || !state.kotoBus) return;
-      const c = state.climate || {};
-      const w = getIntensityWeight();
-
-      const humidity = Number(c.relative_humidity_2m || 55);
-      const rain = Number(c.precipitation || 0);
-
-      const reverbWet = clamp(0.12 + ((humidity - 20) / 100) * 0.42, 0.1, 0.6);
-      const delayTime = clamp(0.08 + rain * 0.05, 0.06, 0.35);
-
-      state.kotoDelay.delayTime.setTargetAtTime(delayTime, state.audioCtx.currentTime, 0.2);
-      state.kotoBus.gain.setTargetAtTime(clamp(0.16 * w, 0.1, 0.35), state.audioCtx.currentTime, 0.3);
-
-      if (state.kotoWetGain) {
-        state.kotoWetGain.gain.setTargetAtTime(reverbWet, state.audioCtx.currentTime, 0.3);
-      }
-    }
-
-    function scheduleKotoPhrase() {
-      if (!state.audioEnabled || !state.config.kotoEngine.enabled) return;
-      if (!state.audioCtx || !state.kotoBus) return;
-
-      const c = state.climate || {};
-      const wind = Number(c.wind_speed_10m || 4);
-      const rain = Number(c.precipitation || 0);
-      const w = getIntensityWeight();
-
-      const baseVoices = clamp(Math.round(1 + (wind / 12) + (rain > 0.2 ? 1 : 0)), 1, state.config.kotoEngine.maxVoices || 3);
-      const voiceCount = clamp(Math.round(baseVoices * w), 1, state.config.kotoEngine.maxVoices || 3);
-
-      updateKotoFxFromClimate();
-
-      for (let i = 0; i < voiceCount; i++) {
-        const delay = i * rand(0.12, 0.36);
-        triggerKotoPluck(delay);
-      }
-
-      const minMs = Number(state.config.kotoEngine.phraseMinMs || 10000);
-      const maxMs = Number(state.config.kotoEngine.phraseMaxMs || 20000);
-      const nextMs = rand(minMs, maxMs) / w;
-
-      clearTimeout(state.kotoTimer);
-      state.kotoTimer = setTimeout(scheduleKotoPhrase, clamp(nextMs, 4000, 24000));
-    }
-
-    function triggerKotoPluck(offsetSec = 0) {
-      if (!state.audioCtx || !state.kotoBus) return;
-      const ctx = state.audioCtx;
-      const now = ctx.currentTime + offsetSec;
-
-      const { hz, scaleName } = getClimateDrivenNote();
-      metricScale.textContent = scaleName;
-
-      const osc = ctx.createOscillator();
-      osc.type = "triangle";
-      osc.frequency.setValueAtTime(hz, now);
-
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
       const noise = ctx.createBufferSource();
-      const buffer = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.05), ctx.sampleRate);
-      const data = buffer.getChannelData(0);
+      const noiseBuf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.04), ctx.sampleRate);
+      const data = noiseBuf.getChannelData(0);
       for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 2);
-      noise.buffer = buffer;
+      noise.buffer = noiseBuf;
 
       const filter = ctx.createBiquadFilter();
-      filter.type = "bandpass";
-      filter.frequency.setValueAtTime(hz * 1.8, now);
-      filter.Q.value = 2.2;
+      filter.type = instrument.osc === "shakuhachi" ? "lowpass" : "bandpass";
+      filter.frequency.setValueAtTime(freq * instrument.bright, now);
+      filter.Q.value = instrument.q;
 
       const amp = ctx.createGain();
       amp.gain.setValueAtTime(0.0001, now);
-      amp.gain.exponentialRampToValueAtTime(0.25, now + 0.01);
-      amp.gain.exponentialRampToValueAtTime(0.0001, now + rand(1.2, 2.6));
+      amp.gain.exponentialRampToValueAtTime(0.27, now + instrument.attack);
+      amp.gain.exponentialRampToValueAtTime(0.0001, now + instrument.decay * rand(0.9, 1.2));
 
-      noise.connect(filter);
-      filter.connect(amp);
-      osc.connect(amp);
-      amp.connect(state.kotoBus);
+      osc1.type = instrument.osc;
+      osc2.type = instrument.osc === "sine" ? "triangle" : "sine";
+      osc1.frequency.setValueAtTime(freq, now);
+      osc2.frequency.setValueAtTime(freq * (1 + instrument.detune / 1200), now);
 
-      osc.start(now);
-      noise.start(now);
-      noise.stop(now + 0.05);
-      osc.stop(now + 2.8);
+      const wind = Number((state.climate || {}).wind_speed_10m || 4);
+      const vibrato = ctx.createOscillator();
+      const vibratoGain = ctx.createGain();
+      vibrato.frequency.value = clamp(4 + wind / 4, 3, 10);
+      vibratoGain.gain.value = instrument.detune;
+      vibrato.connect(vibratoGain);
+      vibratoGain.connect(osc1.detune);
+
+      osc1.connect(filter); osc2.connect(filter); noise.connect(filter); filter.connect(amp); amp.connect(state.stringBus);
+      osc1.start(now); osc2.start(now); noise.start(now); vibrato.start(now);
+      noise.stop(now + 0.04);
+      osc1.stop(now + instrument.decay * 1.4);
+      osc2.stop(now + instrument.decay * 1.4);
+      vibrato.stop(now + instrument.decay * 1.4);
     }
 
-    function stopKotoEngine() {
-      clearTimeout(state.kotoTimer);
-      state.kotoTimer = null;
+    function schedulePhraseLoop() {
+      if (!state.audioEnabled || !state.config.kotoEngine.enabled) return;
+      if (!state.audioCtx) return;
+
+      const climate = state.climate || {};
+      const wind = Number(climate.wind_speed_10m || 4);
+      const rain = Number(climate.precipitation || 0);
+      const weight = getIntensityWeight();
+      const baseVoices = clamp(Math.round(1 + wind / 10 + (rain > 0.2 ? 1 : 0)), 1, Number(state.config.kotoEngine.maxVoices || 4));
+      const voices = clamp(Math.round(baseVoices * weight), 1, Number(state.config.kotoEngine.maxVoices || 4));
+
+      for (let i = 0; i < voices; i++) triggerStringNote(i * rand(0.09, 0.28));
+
+      applyFxControls();
+      const minMs = Number(state.config.kotoEngine.phraseMinMs || 4000);
+      const maxMs = Number(state.config.kotoEngine.phraseMaxMs || 9000);
+      const next = clamp(rand(minMs, maxMs) / weight, 2600, 12000);
+      clearTimeout(state.phraseTimer);
+      state.phraseTimer = setTimeout(schedulePhraseLoop, next);
+    }
+
+    function stopPhraseLoop() {
+      clearTimeout(state.phraseTimer);
+      state.phraseTimer = null;
+    }
+
+    function updateClimatePanel() {
+      const c = state.climate;
+      if (!c) {
+        el.metricTemp.textContent = "offline";
+        el.metricWind.textContent = "offline";
+        el.metricHumidity.textContent = "offline";
+        el.metricPrecip.textContent = "offline";
+        el.metricScene.textContent = "offline";
+        return;
+      }
+      el.metricTemp.textContent = `${c.temperature_2m} °C`;
+      el.metricWind.textContent = `${c.wind_speed_10m} km/h`;
+      el.metricHumidity.textContent = `${c.relative_humidity_2m} %`;
+      el.metricPrecip.textContent = `${c.precipitation} mm`;
+      el.metricScene.textContent = getSceneLabel(c);
+      applyFxControls();
+    }
+
+    async function fetchItoshimaClimate() {
+      if (!state.config.climate.enabled) return;
+      const q = new URLSearchParams({
+        latitude: String(state.config.climate.latitude), longitude: String(state.config.climate.longitude),
+        current: "temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation,weather_code", timezone: state.config.climate.timezone
+      });
+      try {
+        const res = await fetch(`https://api.open-meteo.com/v1/forecast?${q.toString()}`, { cache: "no-store" });
+        if (!res.ok) throw new Error("Climate API error");
+        const data = await res.json();
+        state.climate = data.current || null;
+      } catch (e) {
+        console.warn("Climate fetch failed", e);
+        state.climate = null;
+      }
+      updateClimatePanel();
     }
 
     function setupManualKeys() {
@@ -447,77 +503,36 @@
 
     function toggleSidebar() {
       state.sidebarOpen = !state.sidebarOpen;
-      sidebar.classList.toggle("open", state.sidebarOpen);
-      sidebar.setAttribute("aria-hidden", state.sidebarOpen ? "false" : "true");
-    }
-
-    function updateClimatePanel() {
-      const c = state.climate;
-      if (!c) {
-        metricTemp.textContent = "offline";
-        metricWind.textContent = "offline";
-        metricHumidity.textContent = "offline";
-        metricPrecip.textContent = "offline";
-        metricCode.textContent = "offline";
-        metricScene.textContent = "offline";
-        return;
-      }
-
-      metricTemp.textContent = `${c.temperature_2m} °C`;
-      metricWind.textContent = `${c.wind_speed_10m} km/h`;
-      metricHumidity.textContent = `${c.relative_humidity_2m} %`;
-      metricPrecip.textContent = `${c.precipitation} mm`;
-      metricCode.textContent = String(c.weather_code);
-      metricScene.textContent = getSceneLabel(c);
-    }
-
-    async function fetchItoshimaClimate() {
-      if (!state.config.climate.enabled) return;
-
-      const q = new URLSearchParams({
-        latitude: String(state.config.climate.latitude),
-        longitude: String(state.config.climate.longitude),
-        current: "temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation,weather_code",
-        timezone: state.config.climate.timezone
-      });
-
-      try {
-        const res = await fetch(`https://api.open-meteo.com/v1/forecast?${q.toString()}`, { cache: "no-store" });
-        if (!res.ok) throw new Error("Climate API error");
-        const data = await res.json();
-        state.climate = data.current || null;
-      } catch (error) {
-        console.warn("Climate fetch failed", error);
-        state.climate = null;
-      }
-
-      updateClimatePanel();
+      el.sidebar.classList.toggle("open", state.sidebarOpen);
+      el.sidebar.setAttribute("aria-hidden", state.sidebarOpen ? "false" : "true");
     }
 
     function wireUi() {
-      audioButton.addEventListener("click", async () => {
+      el.audioButton.addEventListener("click", async () => {
         state.audioEnabled = !state.audioEnabled;
-        if (!state.audioEnabled) {
-          stopCurrentAudio(true);
-          stopKotoEngine();
-        } else {
-          initKotoEngineIfNeeded();
+        if (state.audioEnabled) {
+          initAudioEngine();
           if (state.audioCtx && state.audioCtx.state === "suspended") {
             try { await state.audioCtx.resume(); } catch (_) {}
           }
-          scheduleKotoPhrase();
+          triggerStringNote(0);
+          schedulePhraseLoop();
+        } else {
+          stopCurrentAudio(true);
+          stopPhraseLoop();
         }
         setAudioButtonState();
       });
 
-      sidebarToggle.addEventListener("click", toggleSidebar);
-
-      climateEnabledCheckbox.addEventListener("change", () => {
-        state.climateEnabled = climateEnabledCheckbox.checked;
-      });
-
-      intensitySelect.addEventListener("change", () => {
-        state.sonicIntensity = intensitySelect.value;
+      el.sidebarToggle.addEventListener("click", toggleSidebar);
+      el.climateEnabled.addEventListener("change", () => { state.climateEnabled = el.climateEnabled.checked; applyFxControls(); });
+      el.intensity.addEventListener("change", () => { state.sonicIntensity = el.intensity.value; });
+      el.instrument.addEventListener("change", () => { state.instrument = el.instrument.value; triggerStringNote(0); });
+      [el.stringVolume, el.droneEnabled, el.droneVolume, el.reverbTime, el.delayTime, el.delayFeedback, el.dryWet].forEach((x) => {
+        x.addEventListener("input", () => {
+          if (x === el.reverbTime) rebuildReverb(Number(el.reverbTime.value));
+          applyFxControls();
+        });
       });
     }
 
@@ -526,20 +541,26 @@
       state.audioEnabled = Boolean(state.config.audioEnabledByDefault);
       state.climateEnabled = Boolean(state.config.climate.enabled);
       state.sonicIntensity = state.config.climate.sonicIntensity || "present";
-      climateEnabledCheckbox.checked = state.climateEnabled;
-      intensitySelect.value = state.sonicIntensity;
+      state.instrument = state.config.kotoEngine.instrument || "koto";
 
       document.title = state.config.title || "Itoshima sounds";
+      el.climateEnabled.checked = state.climateEnabled;
+      el.intensity.value = state.sonicIntensity;
+      el.instrument.value = state.instrument;
+      el.stringVolume.value = String(state.config.kotoEngine.stringVolume ?? 0.34);
+      el.droneEnabled.checked = Boolean(state.config.kotoEngine.droneEnabled);
+      el.droneVolume.value = String(state.config.kotoEngine.droneVolume ?? 0.16);
+      el.reverbTime.value = String(state.config.kotoEngine.fx.reverbTime ?? 2.8);
+      el.delayTime.value = String(state.config.kotoEngine.fx.delayTimeMs ?? 210);
+      el.delayFeedback.value = String(state.config.kotoEngine.fx.delayFeedback ?? 0.25);
+      el.dryWet.value = String(state.config.kotoEngine.fx.dryWet ?? 0.35);
 
       wireUi();
       setupManualKeys();
       setAudioButtonState();
-
       rotateImage();
       updateClock();
-      updateClimatePanel();
-      metricScale.textContent = SCALE_NAMES[getScaleKeyByTime()] || "Hirajoshi";
-
+      el.metricScale.textContent = SCALE_NAMES[getScaleKeyByTime()] || "Hirajoshi";
       setInterval(updateClock, 1000);
       setInterval(checkSchedule, 1000);
       setInterval(rotateImage, Number(state.config.imageRotateMs) || 300000);
@@ -548,8 +569,8 @@
       setInterval(fetchItoshimaClimate, Number(state.config.climate.refreshMs) || 600000);
 
       if (state.audioEnabled) {
-        initKotoEngineIfNeeded();
-        scheduleKotoPhrase();
+        initAudioEngine();
+        schedulePhraseLoop();
       }
     }
 

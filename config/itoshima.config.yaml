@@ -32,9 +32,18 @@ climate:
 kotoEngine:
   enabled: true
   baseRootHz: 293.66
-  phraseMinMs: 10000
-  phraseMaxMs: 20000
-  maxVoices: 3
+  phraseMinMs: 4000
+  phraseMaxMs: 9000
+  maxVoices: 4
+  instrument: "koto"
+  stringVolume: 0.34
+  droneEnabled: true
+  droneVolume: 0.16
+  fx:
+    reverbTime: 2.8
+    delayTimeMs: 210
+    delayFeedback: 0.25
+    dryWet: 0.35
   scales:
     morning: [0, 2, 3, 7, 8]
     noon: [0, 1, 5, 7, 10]
