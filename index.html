@@ -10,7 +10,8 @@
     body { display: flex; align-items: center; justify-content: center; height: 100vh; background: black; overflow: hidden; position: relative; }
     #imagen { position: absolute; inset: 0; width: 100vw; height: 100vh; object-fit: cover; z-index: -1; }
     .overlay { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); text-align: center; color: white; z-index: 3; }
-    #reloj { font-size: 3em; font-weight: 700; }
+    #reloj { font-size: 2.5em; font-weight: 700; line-height: 1.1; }
+    #reloj .subclock { display: block; font-size: 0.45em; font-weight: 400; margin-top: 6px; opacity: 0.9; }
     #audioButton { margin-top: 10px; padding: 10px 20px; font-size: 1.1em; cursor: pointer; background: rgba(255,0,0,0.12); border: none; color: white; border-radius: 6px; }
     #audioButton.on { background: rgba(0,255,0,0.18); }
 
@@ -247,15 +248,25 @@
       return `${String(n.getHours()).padStart(2,"0")}:${String(n.getMinutes()).padStart(2,"0")}:${String(n.getSeconds()).padStart(2,"0")}`;
     }
 
+    function formatTimeByMode(dateObj, mode, timeZone) {
+      if (mode === "24h") {
+        return new Intl.DateTimeFormat("en-GB", {
+          hour: "2-digit", minute: "2-digit", second: "2-digit",
+          hour12: false, timeZone
+        }).format(dateObj);
+      }
+      return new Intl.DateTimeFormat("en-US", {
+        hour: "2-digit", minute: "2-digit", second: "2-digit",
+        hour12: true, timeZone
+      }).format(dateObj);
+    }
+
     function updateClock() {
       const now = new Date();
       const elClock = document.getElementById("reloj");
-      if (state.config.timeFormat === "24h") {
-        elClock.textContent = `${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}:${String(now.getSeconds()).padStart(2,"0")}`;
-      } else {
-        let h = now.getHours(); const ampm = h >= 12 ? "PM" : "AM"; h = h % 12 || 12;
-        elClock.textContent = `${String(h).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}:${String(now.getSeconds()).padStart(2,"0")} ${ampm}`;
-      }
+      const localTime = formatTimeByMode(now, state.config.timeFormat, Intl.DateTimeFormat().resolvedOptions().timeZone);
+      const itoshimaTime = formatTimeByMode(now, state.config.timeFormat, state.config.climate.timezone || "Asia/Tokyo");
+      elClock.innerHTML = `${localTime}<span class="subclock">Local: ${localTime} | Itoshima: ${itoshimaTime}</span>`;
     }
 
     function checkSchedule() {
