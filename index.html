@@ -56,98 +56,203 @@
             background-color: rgba(0, 255, 0, 0.1);
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/yaml@2.8.1/dist/index.min.js"></script>
 </head>
 <body>
-    <img id="imagen" src="images/imagen1.jpg" alt="Imagen Random">
+    <img id="imagen" src="img/001.jpg" alt="Imagen Random">
     <div class="overlay">
         <div id="reloj"></div>
         <button id="audioButton">Itoshima Sounds (OFF)</button>
     </div>
 
-	<script>
-		// Configurar horarios en formato HH:MM:SS (24 horas)
-		const schedule = [
-			{ time: "07:00:00", audio: "sounds/1_Studio-Kura-7.mp3" },
-			{ time: "12:00:00", audio: "sounds/2_Studio-Kura-12-jingle-Edelweiss.mp3" },
-			{ time: "17:00:00", audio: "sounds/3_Studio-Kura-17-jingle-Yuuyake-Koyake.mp3" }
-		];
+    <script>
+        const DEFAULT_CONFIG_PATHS = [
+            "config/itoshima.config.yaml",
+            "config/itoshima.config.json"
+        ];
 
-		let audioEnabled = false;
-		const audioButton = document.getElementById('audioButton');
+        const DEFAULT_CONFIG = {
+            title: "Itoshima sounds",
+            timeFormat: "12h",
+            imageRotateMs: 900000,
+            audioEnabledByDefault: false,
+            audio: {
+                allowOverlap: false,
+                schedule: [],
+                manualKeys: {}
+            },
+            images: {
+                files: ["img/001.jpg"]
+            }
+        };
 
-		audioButton.addEventListener('click', () => {
-			audioEnabled = !audioEnabled;
-			audioButton.classList.toggle('on', audioEnabled);
-			audioButton.textContent = `Itoshima Sounds (${audioEnabled ? 'ON' : 'OFF'})`;
-		});
+        const state = {
+            audioEnabled: false,
+            currentAudio: null,
+            config: { ...DEFAULT_CONFIG },
+            displayedSecond: null
+        };
 
-		function checkTime() {
-			const now = new Date();
-			const currentTime = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0') + ":" + now.getSeconds().toString().padStart(2, '0');
-			
-			schedule.forEach(event => {
-				if (event.time === currentTime && audioEnabled) {
-					playAudio(event.audio);
-				}
-			});
-		}
+        const audioButton = document.getElementById("audioButton");
+        const imageEl = document.getElementById("imagen");
 
-		function playAudio(audioFile) {
-			const audio = new Audio(audioFile);
-			audio.play().catch(error => console.log("Error al reproducir el audio: ", error));
-		}
+        function mergeConfig(base, incoming) {
+            return {
+                ...base,
+                ...incoming,
+                audio: {
+                    ...base.audio,
+                    ...(incoming.audio || {})
+                },
+                images: {
+                    ...base.images,
+                    ...(incoming.images || {})
+                }
+            };
+        }
 
-		function actualizarReloj() {
-			const ahora = new Date();
-			let horas = ahora.getHours();
-			const minutos = ahora.getMinutes();
-			const segundos = ahora.getSeconds();
-			const ampm = horas >= 12 ? 'PM' : 'AM';
+        async function tryLoadConfig(path) {
+            const response = await fetch(path, { cache: "no-store" });
+            if (!response.ok) throw new Error(`Could not load ${path}`);
+            const text = await response.text();
 
-			horas = horas % 12;
-			horas = horas ? horas : 12;
+            if (path.endsWith(".json")) return JSON.parse(text);
+            if (path.endsWith(".yaml") || path.endsWith(".yml")) {
+                if (!window.YAML || typeof window.YAML.parse !== "function") {
+                    throw new Error("YAML parser not available in browser");
+                }
+                return window.YAML.parse(text);
+            }
 
-			const strHoras = horas < 10 ? '0' + horas : horas;
-			const strMinutos = minutos < 10 ? '0' + minutos : minutos;
-			const strSegundos = segundos < 10 ? '0' + segundos : segundos;
+            return JSON.parse(text);
+        }
 
-			const horaActual = `${strHoras}:${strMinutos}:${strSegundos} ${ampm}`;
-			document.getElementById('reloj').textContent = horaActual;
-		}
+        async function loadConfig() {
+            const queryPath = new URLSearchParams(window.location.search).get("config");
+            const configPaths = queryPath ? [queryPath] : DEFAULT_CONFIG_PATHS;
 
-		function cambiarImagen() {
-			const imagenes = ["images/001.jpg"];
-			const imagenActual = document.getElementById("imagen");
-			const nuevaImagen = imagenes[Math.floor(Math.random() * imagenes.length)];
-			imagenActual.src = nuevaImagen;
-		}
+            for (const path of configPaths) {
+                try {
+                    const config = await tryLoadConfig(path);
+                    return mergeConfig(DEFAULT_CONFIG, config);
+                } catch (error) {
+                    console.warn(error.message);
+                }
+            }
 
-		let currentAudio = null;
+            return DEFAULT_CONFIG;
+        }
 
-		document.addEventListener('keydown', (event) => {
-			if (!audioEnabled) return;
-			
-			if (event.key === '1') playSequentialAudio(schedule[0].audio);
-			if (event.key === '2') playSequentialAudio(schedule[1].audio);
-			if (event.key === '3') playSequentialAudio(schedule[2].audio);
-		});
+        function setAudioButtonState() {
+            audioButton.classList.toggle("on", state.audioEnabled);
+            audioButton.textContent = `Itoshima Sounds (${state.audioEnabled ? "ON" : "OFF"})`;
+        }
 
-		function playSequentialAudio(audioFile) {
-			if (currentAudio && !currentAudio.ended) {
-				return; // No inicia otro audio hasta que el actual termine
-			}
+        function stopCurrentAudio(force = false) {
+            if (!state.currentAudio) return;
+            if (!force && state.config.audio.allowOverlap) return;
+            state.currentAudio.pause();
+            state.currentAudio.currentTime = 0;
+            state.currentAudio = null;
+        }
 
-			currentAudio = new Audio(audioFile);
-			currentAudio.play().catch(error => console.log("Error al reproducir el audio: ", error));
-		}
+        async function playAudio(audioFile) {
+            if (!audioFile) return;
+            if (!state.config.audio.allowOverlap) stopCurrentAudio(true);
 
+            const audio = new Audio(audioFile);
+            state.currentAudio = audio;
+            audio.addEventListener("ended", () => {
+                if (state.currentAudio === audio) state.currentAudio = null;
+            });
 
-		setInterval(actualizarReloj, 1000);
-		actualizarReloj();
-		setInterval(checkTime, 1000);
-		checkTime();
-		setInterval(cambiarImagen, 900000);
-		cambiarImagen();
-	</script>
+            try {
+                await audio.play();
+            } catch (error) {
+                console.log("Error al reproducir el audio:", error);
+            }
+        }
+
+        function getCurrentTime24h() {
+            const now = new Date();
+            const hh = String(now.getHours()).padStart(2, "0");
+            const mm = String(now.getMinutes()).padStart(2, "0");
+            const ss = String(now.getSeconds()).padStart(2, "0");
+            return `${hh}:${mm}:${ss}`;
+        }
+
+        function updateClock() {
+            const now = new Date();
+            const el = document.getElementById("reloj");
+
+            if (state.config.timeFormat === "24h") {
+                const hh = String(now.getHours()).padStart(2, "0");
+                const mm = String(now.getMinutes()).padStart(2, "0");
+                const ss = String(now.getSeconds()).padStart(2, "0");
+                el.textContent = `${hh}:${mm}:${ss}`;
+                return;
+            }
+
+            let hours = now.getHours();
+            const minutes = String(now.getMinutes()).padStart(2, "0");
+            const seconds = String(now.getSeconds()).padStart(2, "0");
+            const ampm = hours >= 12 ? "PM" : "AM";
+            hours = hours % 12 || 12;
+            const hh = String(hours).padStart(2, "0");
+            el.textContent = `${hh}:${minutes}:${seconds} ${ampm}`;
+        }
+
+        function checkSchedule() {
+            if (!state.audioEnabled) return;
+
+            const currentTime = getCurrentTime24h();
+            if (currentTime === state.displayedSecond) return;
+            state.displayedSecond = currentTime;
+
+            const match = state.config.audio.schedule.find((event) => event.time === currentTime);
+            if (match) playAudio(match.file);
+        }
+
+        function rotateImage() {
+            const files = state.config.images.files || [];
+            if (!files.length) return;
+            const next = files[Math.floor(Math.random() * files.length)];
+            imageEl.src = next;
+        }
+
+        function setupManualKeys() {
+            document.addEventListener("keydown", (event) => {
+                if (!state.audioEnabled) return;
+                const manualFile = state.config.audio.manualKeys?.[event.key];
+                if (manualFile) playAudio(manualFile);
+            });
+        }
+
+        function wireUi() {
+            audioButton.addEventListener("click", () => {
+                state.audioEnabled = !state.audioEnabled;
+                if (!state.audioEnabled) stopCurrentAudio(true);
+                setAudioButtonState();
+            });
+        }
+
+        async function main() {
+            state.config = await loadConfig();
+            state.audioEnabled = Boolean(state.config.audioEnabledByDefault);
+            document.title = state.config.title || "Itoshima sounds";
+
+            wireUi();
+            setupManualKeys();
+            setAudioButtonState();
+
+            rotateImage();
+            updateClock();
+            setInterval(updateClock, 1000);
+            setInterval(checkSchedule, 1000);
+            setInterval(rotateImage, Number(state.config.imageRotateMs) || 900000);
+        }
+
+        main();
+    </script>
 </body>
 </html>

@@ -1,0 +1,24 @@
+title: Itoshima sounds
+timeFormat: 12h
+imageRotateMs: 900000
+audioEnabledByDefault: false
+audio:
+  allowOverlap: false
+  schedule:
+    - time: "07:00:00"
+      file: "audio/1_Studio-Kura-7.mp3"
+      label: "Morning"
+    - time: "12:00:00"
+      file: "audio/2_Studio-Kura-12-jingle-Edelweiss.mp3"
+      label: "Noon"
+    - time: "17:00:00"
+      file: "audio/3_Studio-Kura-17-jingle-Yuuyake-Koyake.mp3"
+      label: "Evening"
+  manualKeys:
+    "1": "audio/1_Studio-Kura-7.mp3"
+    "2": "audio/2_Studio-Kura-12-jingle-Edelweiss.mp3"
+    "3": "audio/3_Studio-Kura-17-jingle-Yuuyake-Koyake.mp3"
+images:
+  files:
+    - "img/001.jpg"
+    - "img/002.jpg"

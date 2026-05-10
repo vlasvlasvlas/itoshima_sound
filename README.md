@@ -2,53 +2,62 @@
 
 <img src="images/headerrepo.jpg" style="zoom:50%;" />
 
-
-
 ## Overview
 
-While staying in Itoshima, Japan, I was deeply inspired by the rural landscapes, the farm life, and the rhythmic sounds of the countryside. The first time, it was a pleasant surprise to hear the music played in the farms at 7 AM, 12 PM, and 5 PM. Over time, these sounds became a comforting presence, marking the rhythm of daily life—signaling the start of work, lunch breaks, and the return home to family. This auditory tradition became an integral part of my experience, shaping the way I perceived time and work within this serene setting
+While staying in Itoshima, Japan, I was deeply inspired by the rural landscapes, the farm life, and the rhythmic sounds of the countryside. The first time, it was a pleasant surprise to hear the music played in the farms at 7 AM, 12 PM, and 5 PM. Over time, these sounds became a comforting presence, marking the rhythm of daily life.
 
 ## Purpose of This Project
 
-This simple HTML page is a tribute to that experience. It is designed to automatically play those farm sounds at the designated hours, recreating the immersive atmosphere of working and living in Itoshima. The idea is to let this play in the background in a browser tab, evoking the nostalgia of those moments while blending seamlessly into everyday life.
+This HTML page is a tribute to that experience. It automatically plays farm sounds at the designated hours, recreating the atmosphere of working and living in Itoshima.
 
-## Future Improvements
+## How It Works Now (Scalable Config)
 
-This project has room to grow, with possible enhancements such as:
+The app keeps the same interface, but now behavior is configured from files:
 
-Adding more images or video footage of the Itoshima countryside.
+- `config/itoshima.config.yaml` (default, preferred)
+- `config/itoshima.config.json` (fallback)
 
-Introducing random ambient sounds—cars, wind, birds, and natural noises—to create a more immersive experience.
+You can add more audio files and images without touching JavaScript:
 
-Incorporating varied soundtracks that reflect different seasons and weather conditions.
+- Put audio files in `audio/`
+- Put image files in `img/`
+- Add them in the config file (`audio.schedule`, `audio.manualKeys`, `images.files`)
 
-Implementing random animated sequences that overlay the images, enhancing the visual experience.
+### Config Example
 
-## How to Use
+```yaml
+audio:
+  schedule:
+    - time: "07:00:00"
+      file: "audio/1_Studio-Kura-7.mp3"
+  manualKeys:
+    "1": "audio/1_Studio-Kura-7.mp3"
+images:
+  files:
+    - "img/001.jpg"
+```
 
-Download this repo, extract the zip file contains all the project:
+## Usage
 
-https://github.com/vlasvlasvlas/itoshima_sound/archive/refs/heads/main.zip
+1. Open `index.html` in a browser.
+2. Click `Itoshima Sounds (OFF)` to switch ON.
+3. Keep tab open in background.
+4. Sounds will play at configured times.
 
-Then, simply open the HTML file in your browser, and turon ON the Itoshima sounds button.
+Manual keys are also configurable (`1`, `2`, `3`, etc.) via `audio.manualKeys`.
 
-Then, let it run in the background. 
+## GitHub Pages Deployment (GitHub Actions)
 
-At 7 AM, 12 PM, and 5 PM, the corresponding music will play, just like it does in the fields of Itoshima.
+This repository now includes:
 
-This is a small homage to the beauty of rural Japan and the gentle rhythms that shape life on the farms. I hope it brings a sense of calm and connection to those who experience it.
+- `.github/workflows/pages.yml`
 
+To publish:
 
-## Manual Playback
-
-In addition to automatic playback, you can manually trigger the sounds by pressing:
-
-- **1** to play the **morning** sound (7 AM)
-- **2** to play the **noon** sound (12 PM)
-- **3** to play the **evening** sound (5 PM)
-
-These sounds will only play if the system is switched **ON**. The playback ensures that only one sound can play at a time, preventing overlap.
-
+1. Push to `main`.
+2. In GitHub: `Settings -> Pages`.
+3. Set `Source` to `GitHub Actions`.
+4. Wait for workflow `Deploy Static Site to GitHub Pages` to complete.
 
 ## Thanks
 
@@ -56,8 +65,7 @@ Music soundtrack recordings by Oda at Studio Kura, Jan 2025.
 
 ## References
 
-https://studiokura.info/en/
-
-https://en.wikipedia.org/wiki/Itoshima,_Fukuoka
+- https://studiokura.info/en/
+- https://en.wikipedia.org/wiki/Itoshima,_Fukuoka
 
 <img src="images/002.jpg" alt="alt text" style="zoom:50%;" />
