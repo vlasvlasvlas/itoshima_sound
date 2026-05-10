@@ -1,7 +1,7 @@
 {
   "title": "Itoshima sounds",
   "timeFormat": "12h",
-  "imageRotateMs": 900000,
+  "imageRotateMs": 300000,
   "audioEnabledByDefault": false,
   "audio": {
     "allowOverlap": false,

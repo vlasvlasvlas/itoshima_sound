@@ -74,7 +74,7 @@
         const DEFAULT_CONFIG = {
             title: "Itoshima sounds",
             timeFormat: "12h",
-            imageRotateMs: 900000,
+            imageRotateMs: 300000,
             audioEnabledByDefault: false,
             audio: {
                 allowOverlap: false,
@@ -249,7 +249,7 @@
             updateClock();
             setInterval(updateClock, 1000);
             setInterval(checkSchedule, 1000);
-            setInterval(rotateImage, Number(state.config.imageRotateMs) || 900000);
+            setInterval(rotateImage, Number(state.config.imageRotateMs) || 300000);
         }
 
         main();
