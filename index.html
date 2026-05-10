@@ -1,258 +1,559 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Itoshima sounds</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Roboto', sans-serif;
-        }
-        body {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            background-color: black;
-            overflow: hidden;
-            position: relative;
-        }
-        #imagen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            object-fit: cover;
-            z-index: -1;
-        }
-        .overlay {
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            text-align: center;
-            color: white;
-        }
-        #reloj {
-            font-size: 3em;
-            font-weight: bold;
-        }
-        #audioButton {
-            margin-top: 10px;
-            padding: 10px 20px;
-            font-size: 1.2em;
-            cursor: pointer;
-            background-color: rgba(255, 0, 0, 0.1);
-            border: none;
-            color: white;
-            border-radius: 5px;
-        }
-        #audioButton.on {
-            background-color: rgba(0, 255, 0, 0.1);
-        }
-    </style>
-    <script src="https://cdn.jsdelivr.net/npm/yaml@2.8.1/dist/index.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Itoshima sounds</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Roboto', sans-serif; }
+    body {
+      display: flex; align-items: center; justify-content: center; height: 100vh;
+      background-color: black; overflow: hidden; position: relative;
+    }
+    #imagen {
+      position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
+      object-fit: cover; z-index: -1;
+    }
+    .overlay {
+      position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+      text-align: center; color: white; z-index: 3;
+    }
+    #reloj { font-size: 3em; font-weight: bold; }
+    #audioButton {
+      margin-top: 10px; padding: 10px 20px; font-size: 1.2em; cursor: pointer;
+      background-color: rgba(255, 0, 0, 0.1); border: none; color: white; border-radius: 5px;
+    }
+    #audioButton.on { background-color: rgba(0, 255, 0, 0.1); }
+
+    #sidebarToggle {
+      position: fixed; right: 12px; top: 12px; z-index: 5;
+      border: 1px solid rgba(255,255,255,0.25); background: rgba(0,0,0,0.4);
+      color: white; border-radius: 6px; padding: 8px 10px; cursor: pointer;
+    }
+    #sidebar {
+      position: fixed; right: 0; top: 0; width: min(360px, 86vw); height: 100vh;
+      color: white; background: rgba(0, 0, 0, 0.65); backdrop-filter: blur(6px);
+      border-left: 1px solid rgba(255,255,255,0.15); transform: translateX(100%);
+      transition: transform 200ms ease; z-index: 4; padding: 18px 16px; overflow-y: auto;
+    }
+    #sidebar.open { transform: translateX(0); }
+    .panelTitle { font-size: 1rem; font-weight: 700; margin-bottom: 10px; }
+    .metric {
+      display: flex; justify-content: space-between; margin: 7px 0; padding-bottom: 7px;
+      border-bottom: 1px solid rgba(255,255,255,0.12); font-size: 0.95rem;
+    }
+    .controlRow { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+    .controlRow label { font-size: 0.9rem; }
+    .hint { margin-top: 12px; font-size: 0.82rem; opacity: 0.8; line-height: 1.4; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/yaml@2.8.1/dist/index.min.js"></script>
 </head>
 <body>
-    <img id="imagen" src="img/001.jpg" alt="Imagen Random">
-    <div class="overlay">
-        <div id="reloj"></div>
-        <button id="audioButton">Itoshima Sounds (OFF)</button>
+  <img id="imagen" src="img/001.jpg" alt="Imagen Random" />
+  <div class="overlay">
+    <div id="reloj"></div>
+    <button id="audioButton">Itoshima Sounds (OFF)</button>
+  </div>
+
+  <button id="sidebarToggle" aria-label="Toggle sidebar">Sound Lab</button>
+  <aside id="sidebar" aria-hidden="true">
+    <div class="panelTitle">Itoshima Live Climate</div>
+    <div class="metric"><span>Temp</span><strong id="metricTemp">-</strong></div>
+    <div class="metric"><span>Wind</span><strong id="metricWind">-</strong></div>
+    <div class="metric"><span>Humidity</span><strong id="metricHumidity">-</strong></div>
+    <div class="metric"><span>Precip</span><strong id="metricPrecip">-</strong></div>
+    <div class="metric"><span>Weather Code</span><strong id="metricCode">-</strong></div>
+    <div class="metric"><span>Sonic Scene</span><strong id="metricScene">-</strong></div>
+    <div class="metric"><span>Scale</span><strong id="metricScale">-</strong></div>
+
+    <div class="controlRow">
+      <label><input id="climateEnabled" type="checkbox" checked /> Climate modulation enabled</label>
+      <label for="intensityMode">Intensity</label>
+      <select id="intensityMode">
+        <option value="calm">Calm</option>
+        <option value="present" selected>Present</option>
+        <option value="immersive">Immersive</option>
+      </select>
     </div>
 
-    <script>
-        const DEFAULT_CONFIG_PATHS = [
-            "config/itoshima.config.yaml",
-            "config/itoshima.config.json"
-        ];
+    <div class="hint">
+      Koto engine maps weather data to scale, density, reverb and delay. Sidebar is optional and hidden by default.
+    </div>
+  </aside>
 
-        const DEFAULT_CONFIG = {
-            title: "Itoshima sounds",
-            timeFormat: "12h",
-            imageRotateMs: 300000,
-            audioEnabledByDefault: false,
-            audio: {
-                allowOverlap: false,
-                schedule: [],
-                manualKeys: {}
-            },
-            images: {
-                files: ["img/001.jpg"]
-            }
-        };
+  <script>
+    const DEFAULT_CONFIG_PATHS = ["config/itoshima.config.yaml", "config/itoshima.config.json"];
 
-        const state = {
-            audioEnabled: false,
-            currentAudio: null,
-            config: { ...DEFAULT_CONFIG },
-            displayedSecond: null
-        };
+    const DEFAULT_CONFIG = {
+      title: "Itoshima sounds",
+      timeFormat: "12h",
+      imageRotateMs: 300000,
+      audioEnabledByDefault: false,
+      audio: { allowOverlap: false, schedule: [], manualKeys: {} },
+      images: { files: ["img/001.jpg"] },
+      climate: {
+        enabled: true, latitude: 33.556, longitude: 130.195, timezone: "Asia/Tokyo", refreshMs: 600000,
+        sonicIntensity: "present"
+      },
+      kotoEngine: {
+        enabled: true, baseRootHz: 293.66, phraseMinMs: 10000, phraseMaxMs: 20000, maxVoices: 3,
+        scales: { morning: [0,2,3,7,8], noon: [0,1,5,7,10], evening: [0,2,5,7,9] }
+      }
+    };
 
-        const audioButton = document.getElementById("audioButton");
-        const imageEl = document.getElementById("imagen");
+    const state = {
+      audioEnabled: false,
+      currentAudio: null,
+      config: { ...DEFAULT_CONFIG },
+      displayedSecond: null,
+      climate: null,
+      climateEnabled: true,
+      sidebarOpen: false,
+      sonicIntensity: "present",
+      kotoTimer: null,
+      audioCtx: null,
+      kotoBus: null,
+      kotoDelay: null,
+      kotoReverb: null,
+      kotoWetGain: null
+    };
 
-        function mergeConfig(base, incoming) {
-            return {
-                ...base,
-                ...incoming,
-                audio: {
-                    ...base.audio,
-                    ...(incoming.audio || {})
-                },
-                images: {
-                    ...base.images,
-                    ...(incoming.images || {})
-                }
-            };
+    const audioButton = document.getElementById("audioButton");
+    const imageEl = document.getElementById("imagen");
+    const sidebar = document.getElementById("sidebar");
+    const sidebarToggle = document.getElementById("sidebarToggle");
+    const climateEnabledCheckbox = document.getElementById("climateEnabled");
+    const intensitySelect = document.getElementById("intensityMode");
+
+    const metricTemp = document.getElementById("metricTemp");
+    const metricWind = document.getElementById("metricWind");
+    const metricHumidity = document.getElementById("metricHumidity");
+    const metricPrecip = document.getElementById("metricPrecip");
+    const metricCode = document.getElementById("metricCode");
+    const metricScene = document.getElementById("metricScene");
+    const metricScale = document.getElementById("metricScale");
+
+    const SCALE_NAMES = { morning: "Hirajoshi", noon: "Insen", evening: "Yo" };
+
+    const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+    const rand = (min, max) => min + Math.random() * (max - min);
+
+    function mergeConfig(base, incoming) {
+      return {
+        ...base,
+        ...incoming,
+        audio: { ...base.audio, ...(incoming.audio || {}) },
+        images: { ...base.images, ...(incoming.images || {}) },
+        climate: { ...base.climate, ...(incoming.climate || {}) },
+        kotoEngine: { ...base.kotoEngine, ...(incoming.kotoEngine || {}) }
+      };
+    }
+
+    async function tryLoadConfig(path) {
+      const response = await fetch(path, { cache: "no-store" });
+      if (!response.ok) throw new Error(`Could not load ${path}`);
+      const text = await response.text();
+      if (path.endsWith(".json")) return JSON.parse(text);
+      if (path.endsWith(".yaml") || path.endsWith(".yml")) {
+        if (!window.YAML || typeof window.YAML.parse !== "function") throw new Error("YAML parser unavailable");
+        return window.YAML.parse(text);
+      }
+      return JSON.parse(text);
+    }
+
+    async function loadConfig() {
+      const queryPath = new URLSearchParams(window.location.search).get("config");
+      const paths = queryPath ? [queryPath] : DEFAULT_CONFIG_PATHS;
+      for (const p of paths) {
+        try { return mergeConfig(DEFAULT_CONFIG, await tryLoadConfig(p)); } catch (err) { console.warn(err.message); }
+      }
+      return DEFAULT_CONFIG;
+    }
+
+    function setAudioButtonState() {
+      audioButton.classList.toggle("on", state.audioEnabled);
+      audioButton.textContent = `Itoshima Sounds (${state.audioEnabled ? "ON" : "OFF"})`;
+    }
+
+    function getIntensityWeight() {
+      if (state.sonicIntensity === "calm") return 0.7;
+      if (state.sonicIntensity === "immersive") return 1.4;
+      return 1.0;
+    }
+
+    function getSceneLabel(c) {
+      if (!c) return "offline";
+      if ((c.precipitation || 0) > 0.1) return "rain drift";
+      if ((c.wind_speed_10m || 0) > 18) return "wind field";
+      if ((c.temperature_2m || 0) > 29) return "warm noon haze";
+      if ((c.temperature_2m || 0) < 10) return "cold clear air";
+      return "rural pulse";
+    }
+
+    function getScaleKeyByTime() {
+      const h = new Date().getHours();
+      if (h < 11) return "morning";
+      if (h < 16) return "noon";
+      return "evening";
+    }
+
+    function getScale() {
+      const key = getScaleKeyByTime();
+      return { key, notes: state.config.kotoEngine.scales[key] || [0,2,3,7,8] };
+    }
+
+    function stopCurrentAudio(force = false) {
+      if (!state.currentAudio) return;
+      if (!force && state.config.audio.allowOverlap) return;
+      state.currentAudio.pause();
+      state.currentAudio.currentTime = 0;
+      state.currentAudio = null;
+    }
+
+    function applyClimateAudioParams(audio) {
+      if (!state.climateEnabled || !state.climate) {
+        audio.volume = 0.9; audio.playbackRate = 1.0; return;
+      }
+      const c = state.climate;
+      const w = getIntensityWeight();
+      const temp = Number(c.temperature_2m || 20);
+      const wind = Number(c.wind_speed_10m || 4);
+      const hum = Number(c.relative_humidity_2m || 55);
+      const rain = Number(c.precipitation || 0);
+
+      const rate = clamp((0.9 + ((temp - 10) / 40) * 0.2) * (1 + clamp(wind / 100, 0, 0.08)), 0.85, 1.2);
+      const vol = clamp((0.88 - ((hum - 50) / 100) * 0.08) - (0.06 * clamp(rain, 0, 4)), 0.55, 0.95);
+
+      audio.playbackRate = clamp(1 + ((rate - 1) * w), 0.8, 1.25);
+      audio.volume = clamp(vol * (0.9 + (w - 1) * 0.15), 0.5, 1.0);
+    }
+
+    async function playAudio(file) {
+      if (!file) return;
+      if (!state.config.audio.allowOverlap) stopCurrentAudio(true);
+      const audio = new Audio(file);
+      applyClimateAudioParams(audio);
+      state.currentAudio = audio;
+      audio.addEventListener("ended", () => { if (state.currentAudio === audio) state.currentAudio = null; });
+      try { await audio.play(); } catch (e) { console.log("Audio error", e); }
+    }
+
+    function getCurrentTime24h() {
+      const n = new Date();
+      return `${String(n.getHours()).padStart(2,"0")}:${String(n.getMinutes()).padStart(2,"0")}:${String(n.getSeconds()).padStart(2,"0")}`;
+    }
+
+    function updateClock() {
+      const now = new Date();
+      const el = document.getElementById("reloj");
+      if (state.config.timeFormat === "24h") {
+        el.textContent = `${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}:${String(now.getSeconds()).padStart(2,"0")}`;
+      } else {
+        let h = now.getHours(); const ampm = h >= 12 ? "PM" : "AM"; h = h % 12 || 12;
+        el.textContent = `${String(h).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}:${String(now.getSeconds()).padStart(2,"0")} ${ampm}`;
+      }
+    }
+
+    function checkSchedule() {
+      if (!state.audioEnabled) return;
+      const t = getCurrentTime24h();
+      if (t === state.displayedSecond) return;
+      state.displayedSecond = t;
+      const match = state.config.audio.schedule.find((e) => e.time === t);
+      if (match) playAudio(match.file);
+    }
+
+    function rotateImage() {
+      const files = state.config.images.files || [];
+      if (!files.length) return;
+      imageEl.src = files[Math.floor(Math.random() * files.length)];
+    }
+
+    function initKotoEngineIfNeeded() {
+      if (!state.config.kotoEngine.enabled || state.audioCtx) return;
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) return;
+
+      state.audioCtx = new AudioContextClass();
+      const ctx = state.audioCtx;
+
+      const bus = ctx.createGain();
+      bus.gain.value = 0.22;
+
+      const dry = ctx.createGain(); dry.gain.value = 0.75;
+      const wet = ctx.createGain(); wet.gain.value = 0.25;
+      const wetGain = ctx.createGain(); wetGain.gain.value = 0.25;
+
+      const delay = ctx.createDelay(1.0);
+      const fb = ctx.createGain();
+      delay.delayTime.value = 0.2;
+      fb.gain.value = 0.18;
+      delay.connect(fb);
+      fb.connect(delay);
+
+      const convolver = ctx.createConvolver();
+      convolver.buffer = buildImpulseResponse(ctx, 2.4, 2.2);
+
+      bus.connect(dry); bus.connect(wet);
+      wet.connect(delay);
+      wet.connect(convolver);
+
+      const master = ctx.createGain();
+      master.gain.value = 0.4;
+      dry.connect(master);
+      delay.connect(wetGain);
+      convolver.connect(wetGain);
+      wetGain.connect(master);
+      master.connect(ctx.destination);
+
+      state.kotoBus = bus;
+      state.kotoDelay = delay;
+      state.kotoReverb = convolver;
+      state.kotoWetGain = wetGain;
+    }
+
+    function buildImpulseResponse(ctx, seconds, decay) {
+      const rate = ctx.sampleRate;
+      const length = rate * seconds;
+      const impulse = ctx.createBuffer(2, length, rate);
+      for (let ch = 0; ch < 2; ch++) {
+        const data = impulse.getChannelData(ch);
+        for (let i = 0; i < length; i++) {
+          data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, decay);
         }
+      }
+      return impulse;
+    }
 
-        async function tryLoadConfig(path) {
-            const response = await fetch(path, { cache: "no-store" });
-            if (!response.ok) throw new Error(`Could not load ${path}`);
-            const text = await response.text();
+    function midiToHz(midi) {
+      return 440 * Math.pow(2, (midi - 69) / 12);
+    }
 
-            if (path.endsWith(".json")) return JSON.parse(text);
-            if (path.endsWith(".yaml") || path.endsWith(".yml")) {
-                if (!window.YAML || typeof window.YAML.parse !== "function") {
-                    throw new Error("YAML parser not available in browser");
-                }
-                return window.YAML.parse(text);
-            }
+    function getClimateDrivenNote() {
+      const baseHz = Number(state.config.kotoEngine.baseRootHz || 293.66);
+      const baseMidi = Math.round(69 + 12 * Math.log2(baseHz / 440));
+      const c = state.climate || {};
 
-            return JSON.parse(text);
+      const temp = Number(c.temperature_2m || 20);
+      const registerShift = temp < 10 ? -5 : temp > 28 ? 5 : 0;
+
+      const { key, notes } = getScale();
+      const octaveJumps = [-12, 0, 12];
+      const note = notes[Math.floor(Math.random() * notes.length)];
+      const octave = octaveJumps[Math.floor(Math.random() * octaveJumps.length)];
+      const midi = clamp(baseMidi + registerShift + note + octave, 45, 81);
+
+      return { hz: midiToHz(midi), scaleName: SCALE_NAMES[key] || key };
+    }
+
+    function updateKotoFxFromClimate() {
+      if (!state.audioCtx || !state.kotoBus) return;
+      const c = state.climate || {};
+      const w = getIntensityWeight();
+
+      const humidity = Number(c.relative_humidity_2m || 55);
+      const rain = Number(c.precipitation || 0);
+
+      const reverbWet = clamp(0.12 + ((humidity - 20) / 100) * 0.42, 0.1, 0.6);
+      const delayTime = clamp(0.08 + rain * 0.05, 0.06, 0.35);
+
+      state.kotoDelay.delayTime.setTargetAtTime(delayTime, state.audioCtx.currentTime, 0.2);
+      state.kotoBus.gain.setTargetAtTime(clamp(0.16 * w, 0.1, 0.35), state.audioCtx.currentTime, 0.3);
+
+      if (state.kotoWetGain) {
+        state.kotoWetGain.gain.setTargetAtTime(reverbWet, state.audioCtx.currentTime, 0.3);
+      }
+    }
+
+    function scheduleKotoPhrase() {
+      if (!state.audioEnabled || !state.config.kotoEngine.enabled) return;
+      if (!state.audioCtx || !state.kotoBus) return;
+
+      const c = state.climate || {};
+      const wind = Number(c.wind_speed_10m || 4);
+      const rain = Number(c.precipitation || 0);
+      const w = getIntensityWeight();
+
+      const baseVoices = clamp(Math.round(1 + (wind / 12) + (rain > 0.2 ? 1 : 0)), 1, state.config.kotoEngine.maxVoices || 3);
+      const voiceCount = clamp(Math.round(baseVoices * w), 1, state.config.kotoEngine.maxVoices || 3);
+
+      updateKotoFxFromClimate();
+
+      for (let i = 0; i < voiceCount; i++) {
+        const delay = i * rand(0.12, 0.36);
+        triggerKotoPluck(delay);
+      }
+
+      const minMs = Number(state.config.kotoEngine.phraseMinMs || 10000);
+      const maxMs = Number(state.config.kotoEngine.phraseMaxMs || 20000);
+      const nextMs = rand(minMs, maxMs) / w;
+
+      clearTimeout(state.kotoTimer);
+      state.kotoTimer = setTimeout(scheduleKotoPhrase, clamp(nextMs, 4000, 24000));
+    }
+
+    function triggerKotoPluck(offsetSec = 0) {
+      if (!state.audioCtx || !state.kotoBus) return;
+      const ctx = state.audioCtx;
+      const now = ctx.currentTime + offsetSec;
+
+      const { hz, scaleName } = getClimateDrivenNote();
+      metricScale.textContent = scaleName;
+
+      const osc = ctx.createOscillator();
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(hz, now);
+
+      const noise = ctx.createBufferSource();
+      const buffer = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.05), ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 2);
+      noise.buffer = buffer;
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = "bandpass";
+      filter.frequency.setValueAtTime(hz * 1.8, now);
+      filter.Q.value = 2.2;
+
+      const amp = ctx.createGain();
+      amp.gain.setValueAtTime(0.0001, now);
+      amp.gain.exponentialRampToValueAtTime(0.25, now + 0.01);
+      amp.gain.exponentialRampToValueAtTime(0.0001, now + rand(1.2, 2.6));
+
+      noise.connect(filter);
+      filter.connect(amp);
+      osc.connect(amp);
+      amp.connect(state.kotoBus);
+
+      osc.start(now);
+      noise.start(now);
+      noise.stop(now + 0.05);
+      osc.stop(now + 2.8);
+    }
+
+    function stopKotoEngine() {
+      clearTimeout(state.kotoTimer);
+      state.kotoTimer = null;
+    }
+
+    function setupManualKeys() {
+      document.addEventListener("keydown", (event) => {
+        if (!state.audioEnabled) return;
+        const manualFile = state.config.audio.manualKeys?.[event.key];
+        if (manualFile) playAudio(manualFile);
+      });
+    }
+
+    function toggleSidebar() {
+      state.sidebarOpen = !state.sidebarOpen;
+      sidebar.classList.toggle("open", state.sidebarOpen);
+      sidebar.setAttribute("aria-hidden", state.sidebarOpen ? "false" : "true");
+    }
+
+    function updateClimatePanel() {
+      const c = state.climate;
+      if (!c) {
+        metricTemp.textContent = "offline";
+        metricWind.textContent = "offline";
+        metricHumidity.textContent = "offline";
+        metricPrecip.textContent = "offline";
+        metricCode.textContent = "offline";
+        metricScene.textContent = "offline";
+        return;
+      }
+
+      metricTemp.textContent = `${c.temperature_2m} °C`;
+      metricWind.textContent = `${c.wind_speed_10m} km/h`;
+      metricHumidity.textContent = `${c.relative_humidity_2m} %`;
+      metricPrecip.textContent = `${c.precipitation} mm`;
+      metricCode.textContent = String(c.weather_code);
+      metricScene.textContent = getSceneLabel(c);
+    }
+
+    async function fetchItoshimaClimate() {
+      if (!state.config.climate.enabled) return;
+
+      const q = new URLSearchParams({
+        latitude: String(state.config.climate.latitude),
+        longitude: String(state.config.climate.longitude),
+        current: "temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation,weather_code",
+        timezone: state.config.climate.timezone
+      });
+
+      try {
+        const res = await fetch(`https://api.open-meteo.com/v1/forecast?${q.toString()}`, { cache: "no-store" });
+        if (!res.ok) throw new Error("Climate API error");
+        const data = await res.json();
+        state.climate = data.current || null;
+      } catch (error) {
+        console.warn("Climate fetch failed", error);
+        state.climate = null;
+      }
+
+      updateClimatePanel();
+    }
+
+    function wireUi() {
+      audioButton.addEventListener("click", async () => {
+        state.audioEnabled = !state.audioEnabled;
+        if (!state.audioEnabled) {
+          stopCurrentAudio(true);
+          stopKotoEngine();
+        } else {
+          initKotoEngineIfNeeded();
+          if (state.audioCtx && state.audioCtx.state === "suspended") {
+            try { await state.audioCtx.resume(); } catch (_) {}
+          }
+          scheduleKotoPhrase();
         }
+        setAudioButtonState();
+      });
 
-        async function loadConfig() {
-            const queryPath = new URLSearchParams(window.location.search).get("config");
-            const configPaths = queryPath ? [queryPath] : DEFAULT_CONFIG_PATHS;
+      sidebarToggle.addEventListener("click", toggleSidebar);
 
-            for (const path of configPaths) {
-                try {
-                    const config = await tryLoadConfig(path);
-                    return mergeConfig(DEFAULT_CONFIG, config);
-                } catch (error) {
-                    console.warn(error.message);
-                }
-            }
+      climateEnabledCheckbox.addEventListener("change", () => {
+        state.climateEnabled = climateEnabledCheckbox.checked;
+      });
 
-            return DEFAULT_CONFIG;
-        }
+      intensitySelect.addEventListener("change", () => {
+        state.sonicIntensity = intensitySelect.value;
+      });
+    }
 
-        function setAudioButtonState() {
-            audioButton.classList.toggle("on", state.audioEnabled);
-            audioButton.textContent = `Itoshima Sounds (${state.audioEnabled ? "ON" : "OFF"})`;
-        }
+    async function main() {
+      state.config = await loadConfig();
+      state.audioEnabled = Boolean(state.config.audioEnabledByDefault);
+      state.climateEnabled = Boolean(state.config.climate.enabled);
+      state.sonicIntensity = state.config.climate.sonicIntensity || "present";
+      climateEnabledCheckbox.checked = state.climateEnabled;
+      intensitySelect.value = state.sonicIntensity;
 
-        function stopCurrentAudio(force = false) {
-            if (!state.currentAudio) return;
-            if (!force && state.config.audio.allowOverlap) return;
-            state.currentAudio.pause();
-            state.currentAudio.currentTime = 0;
-            state.currentAudio = null;
-        }
+      document.title = state.config.title || "Itoshima sounds";
 
-        async function playAudio(audioFile) {
-            if (!audioFile) return;
-            if (!state.config.audio.allowOverlap) stopCurrentAudio(true);
+      wireUi();
+      setupManualKeys();
+      setAudioButtonState();
 
-            const audio = new Audio(audioFile);
-            state.currentAudio = audio;
-            audio.addEventListener("ended", () => {
-                if (state.currentAudio === audio) state.currentAudio = null;
-            });
+      rotateImage();
+      updateClock();
+      updateClimatePanel();
+      metricScale.textContent = SCALE_NAMES[getScaleKeyByTime()] || "Hirajoshi";
 
-            try {
-                await audio.play();
-            } catch (error) {
-                console.log("Error al reproducir el audio:", error);
-            }
-        }
+      setInterval(updateClock, 1000);
+      setInterval(checkSchedule, 1000);
+      setInterval(rotateImage, Number(state.config.imageRotateMs) || 300000);
 
-        function getCurrentTime24h() {
-            const now = new Date();
-            const hh = String(now.getHours()).padStart(2, "0");
-            const mm = String(now.getMinutes()).padStart(2, "0");
-            const ss = String(now.getSeconds()).padStart(2, "0");
-            return `${hh}:${mm}:${ss}`;
-        }
+      await fetchItoshimaClimate();
+      setInterval(fetchItoshimaClimate, Number(state.config.climate.refreshMs) || 600000);
 
-        function updateClock() {
-            const now = new Date();
-            const el = document.getElementById("reloj");
+      if (state.audioEnabled) {
+        initKotoEngineIfNeeded();
+        scheduleKotoPhrase();
+      }
+    }
 
-            if (state.config.timeFormat === "24h") {
-                const hh = String(now.getHours()).padStart(2, "0");
-                const mm = String(now.getMinutes()).padStart(2, "0");
-                const ss = String(now.getSeconds()).padStart(2, "0");
-                el.textContent = `${hh}:${mm}:${ss}`;
-                return;
-            }
-
-            let hours = now.getHours();
-            const minutes = String(now.getMinutes()).padStart(2, "0");
-            const seconds = String(now.getSeconds()).padStart(2, "0");
-            const ampm = hours >= 12 ? "PM" : "AM";
-            hours = hours % 12 || 12;
-            const hh = String(hours).padStart(2, "0");
-            el.textContent = `${hh}:${minutes}:${seconds} ${ampm}`;
-        }
-
-        function checkSchedule() {
-            if (!state.audioEnabled) return;
-
-            const currentTime = getCurrentTime24h();
-            if (currentTime === state.displayedSecond) return;
-            state.displayedSecond = currentTime;
-
-            const match = state.config.audio.schedule.find((event) => event.time === currentTime);
-            if (match) playAudio(match.file);
-        }
-
-        function rotateImage() {
-            const files = state.config.images.files || [];
-            if (!files.length) return;
-            const next = files[Math.floor(Math.random() * files.length)];
-            imageEl.src = next;
-        }
-
-        function setupManualKeys() {
-            document.addEventListener("keydown", (event) => {
-                if (!state.audioEnabled) return;
-                const manualFile = state.config.audio.manualKeys?.[event.key];
-                if (manualFile) playAudio(manualFile);
-            });
-        }
-
-        function wireUi() {
-            audioButton.addEventListener("click", () => {
-                state.audioEnabled = !state.audioEnabled;
-                if (!state.audioEnabled) stopCurrentAudio(true);
-                setAudioButtonState();
-            });
-        }
-
-        async function main() {
-            state.config = await loadConfig();
-            state.audioEnabled = Boolean(state.config.audioEnabledByDefault);
-            document.title = state.config.title || "Itoshima sounds";
-
-            wireUi();
-            setupManualKeys();
-            setAudioButtonState();
-
-            rotateImage();
-            updateClock();
-            setInterval(updateClock, 1000);
-            setInterval(checkSchedule, 1000);
-            setInterval(rotateImage, Number(state.config.imageRotateMs) || 300000);
-        }
-
-        main();
-    </script>
+    main();
+  </script>
 </body>
 </html>

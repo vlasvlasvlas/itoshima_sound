@@ -21,5 +21,25 @@
       "img/001.jpg",
       "img/002.jpg"
     ]
+  },
+  "climate": {
+    "enabled": true,
+    "latitude": 33.556,
+    "longitude": 130.195,
+    "timezone": "Asia/Tokyo",
+    "refreshMs": 600000,
+    "sonicIntensity": "present"
+  },
+  "kotoEngine": {
+    "enabled": true,
+    "baseRootHz": 293.66,
+    "phraseMinMs": 10000,
+    "phraseMaxMs": 20000,
+    "maxVoices": 3,
+    "scales": {
+      "morning": [0, 2, 3, 7, 8],
+      "noon": [0, 1, 5, 7, 10],
+      "evening": [0, 2, 5, 7, 9]
+    }
   }
 }
