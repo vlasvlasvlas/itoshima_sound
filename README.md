@@ -5,9 +5,10 @@ Minimal interface + experimental Japanese generative sound lab driven by Itoshim
 ## Main Experience
 
 - Clock + ON/OFF button
+- On-demand sound buttons for Morning / Noon / Evening
 - Rotating background images every 5 minutes
 - Scheduled farm sounds at 07:00 / 12:00 / 17:00
-- Manual triggers with keys: `1`, `2`, `3`
+- Manual keyboard triggers with keys: `1`, `2`, `3`
 
 ## Collapsible Sidebar (Sound Lab)
 
